@@ -4,6 +4,7 @@ namespace Lentille\SymfonyBundle\Frontend\ConfigEntry;
 
 use HaydenPierce\ClassFinder\ClassFinder;
 use Lentille\SymfonyBundle\Attribute\AsExportableEnum;
+use Lentille\SymfonyBundle\Attribute\CurrentLocale;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 class ExportableEnumEntry implements ConfigEntryInterface {
@@ -18,7 +19,7 @@ class ExportableEnumEntry implements ConfigEntryInterface {
 		];
 	}
 
-	public function getConfig(string $instance): array {
+	public function getConfig(ConfigGetterArgs $args): array {
 		$result = [];
 		foreach(array_unique(array_reduce(
 			$this->enumNamespaces,
@@ -27,12 +28,12 @@ class ExportableEnumEntry implements ConfigEntryInterface {
 		)) as $class) {
 			try {
 				$enum = new \ReflectionEnum($class);
-			} catch (\ReflectionException) {
+			} catch(\ReflectionException) {
 				continue;
 			}
 			/** @var AsExportableEnum $attr */
 			if(!($attr = ($enum->getAttributes(AsExportableEnum::class)[0] ?? null)?->newInstance())) continue;
-			if(!empty($attr->instances) && !in_array($instance, $attr->instances)) continue;
+			if(!empty($attr->instances) && !in_array($args->instance, $attr->instances)) continue;
 
 			$cases = [];
 			foreach($enum->getCases() as $case) {
@@ -40,12 +41,15 @@ class ExportableEnumEntry implements ConfigEntryInterface {
 					'type' => $case->getName(),
 					'id' => $case instanceof \ReflectionEnumBackedCase ? $case->getBackingValue() : $case->getName()
 				];
-
 				foreach($attr->extraAttrs as $key => $values) {
 					$a[$key] = $values[$case->getName()] ?? null;
 				}
 				foreach($attr->methodAttrs as $key => $methodName) {
-					$a[$key] = $this->callMethodWithArguments($enum->getMethod($methodName), $case->getValue());
+					$a[is_int($key) ? $methodName : $key] = $this->callMethodWithArguments(
+						$args,
+						$enum->getMethod($methodName),
+						$case->getValue()
+					);
 				}
 				$cases[(string)$a['id']] = $a;
 			}
@@ -54,12 +58,26 @@ class ExportableEnumEntry implements ConfigEntryInterface {
 		return $result;
 	}
 
-	private function callMethodWithArguments(\ReflectionMethod $method, \UnitEnum $context): mixed {
+	private function callMethodWithArguments(ConfigGetterArgs $args, \ReflectionMethod $method, \UnitEnum $context): mixed {
+		$services = array_merge($this->availableServices, [
+			ConfigGetterArgs::class => $args,
+			CurrentLocale::class => $args->locale
+		]);
 		return $method->invokeArgs($context, array_map(
-			fn(\ReflectionParameter $param) => array_key_exists($serv = $param->getType()->getName(), $this->availableServices)
-				? $this->availableServices[$serv]
-				: $param->getDefaultValue(),
+			fn(\ReflectionParameter $p) => $this->resolveArgumentValue($p, $services),
 			$method->getParameters()
 		));
+	}
+
+	private function resolveArgumentValue(\ReflectionParameter $param, array $services): mixed {
+		foreach($param->getAttributes() as $attr) {
+			if(array_key_exists($id = $attr->getName(), $services)) {
+				return $services[$id];
+			}
+		}
+		if(array_key_exists($id = $param->getType()->getName(), $services)) {
+			return $services[$id];
+		}
+		return $param->getDefaultValue();
 	}
 }

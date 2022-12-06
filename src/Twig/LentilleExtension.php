@@ -3,12 +3,14 @@
 namespace Lentille\SymfonyBundle\Twig;
 
 use Lentille\SymfonyBundle\Frontend\FrontendConfig;
+use Symfony\Component\HttpFoundation\RequestStack;
 use Twig\Extension\AbstractExtension;
 use Twig\TwigFunction;
 
 class LentilleExtension extends AbstractExtension {
 	public function __construct(
-		private readonly FrontendConfig $frontendConfig
+		private readonly FrontendConfig $frontendConfig,
+		private readonly RequestStack $requestStack
 	) {}
 
 	public function getFunctions(): array {
@@ -19,7 +21,7 @@ class LentilleExtension extends AbstractExtension {
 	}
 
 	public function getConfig(string $instance = 'main'): array {
-		return $this->frontendConfig->getConfig($instance);
+		return $this->frontendConfig->getConfig($instance, $this->requestStack->getCurrentRequest()?->getLocale());
 	}
 
 	public function getConfigVersion(string $instance = 'main'): string {

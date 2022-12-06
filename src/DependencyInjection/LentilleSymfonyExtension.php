@@ -32,6 +32,7 @@ class LentilleSymfonyExtension extends Extension {
 		$container
 			->getDefinition(FrontendConfig::class)
 			->setArgument('$instances', $config['frontend']['instances'])
+			->setArgument('$warmupLocales', $config['warmup']['locales'])
 		;
 
 		$container

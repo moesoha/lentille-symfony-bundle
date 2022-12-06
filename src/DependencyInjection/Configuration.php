@@ -8,7 +8,6 @@ use Symfony\Component\Config\Definition\ConfigurationInterface;
 class Configuration implements ConfigurationInterface {
     public function getConfigTreeBuilder(): TreeBuilder {
         $builder = new TreeBuilder('lentille');
-
 		$builder->getRootNode()
 			->children()
 				->arrayNode('exception')
@@ -36,9 +35,18 @@ class Configuration implements ConfigurationInterface {
 						->end()
 					->end()
 				->end()
+				->arrayNode('warmup')
+					->addDefaultsIfNotSet()
+					->children()
+						->arrayNode('locales') // TODO: check name
+							->defaultValue([])
+							->scalarPrototype()
+							->end()
+						->end()
+					->end()
+				->end()
 			->end()
 		;
-
         return $builder;
     }
 }

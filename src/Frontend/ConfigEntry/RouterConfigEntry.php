@@ -12,7 +12,7 @@ class RouterConfigEntry implements ConfigEntryInterface {
 		#[Autowire(service: 'router')] private readonly RouterInterface $router
 	) {}
 
-	public function getConfig(string $instance): array {
+	public function getConfig(ConfigGetterArgs $args): array {
 		$routes = [];
 		/** @var Route $route */
 		foreach($this->router->getRouteCollection() as $name => $route) {
@@ -31,7 +31,7 @@ class RouterConfigEntry implements ConfigEntryInterface {
 					// method may not exist
 				}
 			}
-			if($this->checkInstance($instance, $attributes ?? [])) {
+			if($this->checkInstance($args->instance, $attributes ?? [])) {
 				$routes[$name] = $route->getPath();
 			}
 		}

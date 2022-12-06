@@ -6,6 +6,6 @@ use Symfony\Component\DependencyInjection\Attribute\Autoconfigure;
 
 #[Autoconfigure(tags: ['lentille.frontend_config.entry'])]
 interface ConfigEntryInterface {
-	public function getConfig(string $instance): array;
+	public function getConfig(ConfigGetterArgs $args): array;
 }
 

@@ -10,7 +10,7 @@ use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInt
 use Symfony\Component\Serializer\SerializerInterface;
 
 class FrontendRenderer {
-	private const DATA_TYPE_HEADER = "x-lentille-request";
+	private const DATA_TYPE_HEADER = 'x-lentille-request';
 	private const RESPONSE_HEADERS = [
 		'Vary' => self::DATA_TYPE_HEADER
 	];
