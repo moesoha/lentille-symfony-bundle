@@ -8,22 +8,36 @@ use Symfony\Component\Config\Definition\ConfigurationInterface;
 class Configuration implements ConfigurationInterface {
     public function getConfigTreeBuilder(): TreeBuilder {
         $builder = new TreeBuilder('lentille');
-		$rootNode = $builder->getRootNode();
 
-        $rootNode->children()
-            ->arrayNode('exception')->addDefaultsIfNotSet()->children()
-                ->arrayNode('show_trace_roles')
-                ->defaultValue([])
-                ->scalarPrototype()
-            ->end()
-        ->end();
-		$rootNode->children()
-			->arrayNode('frontend')->addDefaultsIfNotSet()->children()
-				->arrayNode('instances') // TODO: check name
-				->defaultValue(['main'])
-				->scalarPrototype()
+		$builder->getRootNode()
+			->children()
+				->arrayNode('exception')
+					->addDefaultsIfNotSet()
+					->children()
+						->arrayNode('show_trace_roles')
+							->defaultValue([])
+							->scalarPrototype()
+							->end()
+						->end()
+					->end()
+				->end()
+				->arrayNode('frontend')
+					->addDefaultsIfNotSet()
+					->children()
+						->arrayNode('instances') // TODO: check name
+							->defaultValue(['main'])
+							->scalarPrototype()
+							->end()
+						->end()
+						->arrayNode('enum_namespaces')
+							->defaultValue([])
+							->scalarPrototype()
+							->end()
+						->end()
+					->end()
+				->end()
 			->end()
-		->end();
+		;
 
         return $builder;
     }

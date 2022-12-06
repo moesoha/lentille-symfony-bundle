@@ -23,16 +23,14 @@ class LentilleSymfonyExtension extends Extension {
 		$loader = new YamlFileLoader($container, new FileLocator(__DIR__.'/../../config'));
 		$loader->load('services.yaml');
 
-		$configException = $config['exception'] ?? [];
 		$container
 			->getDefinition(ErrorController::class)
-			->setArgument('$traceRoles', $configException['show_trace_roles'])
+			->setArgument('$traceRoles', $config['exception']['show_trace_roles'])
 		;
 
-		$configFrontend = $config['frontend'] ?? [];
 		$container
 			->getDefinition(FrontendConfig::class)
-			->setArgument('$instances', $configFrontend['instances'])
+			->setArgument('$instances', $config['frontend']['instances'])
 		;
 
 		if($container->has('twig')) {
