@@ -3,6 +3,7 @@
 namespace Lentille\SymfonyBundle\DependencyInjection;
 
 use Lentille\SymfonyBundle\Controller\ErrorController;
+use Lentille\SymfonyBundle\Frontend\ConfigEntry\ExportableEnumEntry;
 use Lentille\SymfonyBundle\Frontend\FrontendConfig;
 use Lentille\SymfonyBundle\Frontend\FrontendInitialRendererInterface;
 use Lentille\SymfonyBundle\Twig\TwigInitialRenderer;
@@ -32,6 +33,19 @@ class LentilleSymfonyExtension extends Extension {
 			->getDefinition(FrontendConfig::class)
 			->setArgument('$instances', $config['frontend']['instances'])
 		;
+
+		$container
+			->getDefinition(ExportableEnumEntry::class)
+			->setArgument('$enumNamespaces', $config['frontend']['enum_namespaces'])
+		;
+
+		// $container->registerAttributeForAutoconfiguration(
+		// 	AsExportableEnum::class,
+		// 	static function (ChildDefinition $definition, AsExportableEnum $attribute): void {
+		// 		var_dump($definition, $attribute);
+		// 		$definition->addTag(AsExportableEnum::TAG);
+		// 	}
+		// );
 
 		if($container->has('twig')) {
 			$container->setAlias(FrontendInitialRendererInterface::class, TwigInitialRenderer::class);
