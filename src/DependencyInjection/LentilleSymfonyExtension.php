@@ -10,9 +10,10 @@ use Lentille\SymfonyBundle\Twig\TwigInitialRenderer;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Extension\Extension;
+use Symfony\Component\DependencyInjection\Extension\PrependExtensionInterface;
 use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
 
-class LentilleSymfonyExtension extends Extension {
+class LentilleSymfonyExtension extends Extension implements PrependExtensionInterface {
 	public function getAlias(): string {
 		return 'lentille';
 	}
@@ -51,5 +52,11 @@ class LentilleSymfonyExtension extends Extension {
 		if($container->has('twig')) {
 			$container->setAlias(FrontendInitialRendererInterface::class, TwigInitialRenderer::class);
 		}
+	}
+
+	public function prepend(ContainerBuilder $container) {
+		$container->prependExtensionConfig('framework', [
+			'error_controller' => ErrorController::class
+		]);
 	}
 }
