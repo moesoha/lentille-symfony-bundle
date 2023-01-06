@@ -23,12 +23,19 @@ class FrontendRenderer {
 	) {}
 
 	public function render(string $template, array $data = [], int $status = 200, array $headers = [], array $context = []): Response {
+		$instance = 'main';
+		if($colon = mb_strpos($template, ':')) {
+			$instance = mb_substr($template, 0, $colon);
+			$template = mb_substr($template, $colon + 1);
+		}
+
 		if(empty($data)) $data[':'] = 0;
 		$request = $this->requestStack->getCurrentRequest();
 		$responseHeader = $headers + self::RESPONSE_HEADERS;
 		$contentOnly = strtolower($request->headers->get(self::DATA_TYPE_HEADER, '')) === 'content-only';
 
 		$frontendData = $this->serializer->serialize([
+			'instance' => $instance,
 			'template' => $template,
 			'status' => $status,
 			'locale' => $request->getLocale(),
@@ -44,7 +51,8 @@ class FrontendRenderer {
 			: $this->initialRenderer->render(
 				$template,
 				[
-					'_fe_data' => $frontendData
+					'_fe_data' => $frontendData,
+					'_fe_instance' => $instance,
 				] + $data,
 				$status,
 				$responseHeader,
