@@ -4,6 +4,7 @@ namespace Lentille\SymfonyBundle\Controller;
 
 use Lentille\SymfonyBundle\Attribute\Api;
 use Lentille\SymfonyBundle\Exception\ErrorExtraDataInterface;
+use Lentille\SymfonyBundle\Exception\TranslatableExceptionInterface;
 use Lentille\SymfonyBundle\Frontend\FrontendRenderer;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -51,7 +52,15 @@ class ErrorController {
 
 		if($showTrace) $data['errorTrace'] = $exception->getTraceAsString();
 		if($this->translator) {
-			$data['errorMessage'] = $this->translator->trans($data['errorMessage'], [], 'exceptions');
+			if($exception instanceof TranslatableExceptionInterface) {
+				$data['errorMessage'] = $this->translator->trans(
+					$exception->getMessageKey(),
+					$exception->getMessageData(),
+					$exception->getMessageDomain() ?: 'exceptions'
+				);
+			} else {
+				$data['errorMessage'] = $this->translator->trans($data['errorMessage'], [], 'exceptions');
+			}
 		}
 
 		return $useJson
