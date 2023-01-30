@@ -3,12 +3,12 @@
 namespace Lentille\SymfonyBundle\Serializer\Normalizer;
 
 use Lentille\SymfonyBundle\Serializer\LeveledNormalizer\PinNormalizeLevel;
-use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
+use Symfony\Component\DependencyInjection\Attribute\AutoconfigureTag;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 use Symfony\Component\Serializer\SerializerAwareInterface;
 use Symfony\Component\Serializer\SerializerAwareTrait;
 
-#[AsTaggedItem(priority: -650)]
+#[AutoconfigureTag(attributes: ['priority' => -650])]
 class PinNormalizeLevelNormalizer implements NormalizerInterface, SerializerAwareInterface {
 	use SerializerAwareTrait;
 

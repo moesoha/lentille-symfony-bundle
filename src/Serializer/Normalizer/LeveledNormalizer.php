@@ -4,13 +4,13 @@ namespace Lentille\SymfonyBundle\Serializer\Normalizer;
 
 use Lentille\SymfonyBundle\Serializer\LeveledNormalizer\LeveledNormalizerInterface;
 use Lentille\SymfonyBundle\Serializer\LeveledNormalizer\NormalizeLevel;
-use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
+use Symfony\Component\DependencyInjection\Attribute\AutoconfigureTag;
 use Symfony\Component\DependencyInjection\Attribute\TaggedIterator;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 use Symfony\Component\Serializer\SerializerAwareInterface;
 use Symfony\Component\Serializer\SerializerAwareTrait;
 
-#[AsTaggedItem(priority: -600)]
+#[AutoconfigureTag(attributes: ['priority' => -600])]
 class LeveledNormalizer implements NormalizerInterface, SerializerAwareInterface {
 	use SerializerAwareTrait;
 
