@@ -4,7 +4,7 @@ namespace Lentille\SymfonyBundle\Exception;
 
 use Symfony\Component\HttpKernel\Exception\HttpException;
 
-abstract class TranslatableHttpException extends HttpException implements TranslatableExceptionInterface {
+class TranslatableHttpException extends HttpException implements TranslatableExceptionInterface {
 	private ?string $messageKey = null;
 	private array $messageData = [];
 
