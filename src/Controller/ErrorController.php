@@ -78,6 +78,7 @@ class ErrorController {
 
 	private function shouldReturnJson(Request $request): bool {
 		if(
+			($request->getRequestFormat() === 'json') ||
 			($request->getContentTypeFormat() === 'json') ||
 			(($request->getAcceptableContentTypes()[0] ?? '') === 'application/json')
 		) return true;
