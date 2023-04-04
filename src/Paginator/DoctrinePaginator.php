@@ -48,7 +48,7 @@ class DoctrinePaginator implements NormalizableInterface {
 		return [
 			'perPage' => $this->getPerPage(),
 			'count' => $this->getCount(),
-			'result' => $this->getResult()
+			'result' => $normalizer->normalize($this->getResult(), $format, $context)
 		];
 	}
 }
