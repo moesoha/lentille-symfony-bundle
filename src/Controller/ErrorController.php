@@ -15,6 +15,7 @@ use Symfony\Component\HttpKernel\Attribute\AsController;
 use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 use Symfony\Component\Security\Core\Exception\AuthenticationCredentialsNotFoundException;
+use Symfony\Component\Security\Core\Exception\AuthenticationException;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 #[AsController]
@@ -58,7 +59,13 @@ class ErrorController {
 				$data['errorTrace'] .= $exex->getTraceAsString();
 			}
 		}
-		if($exception instanceof TranslatableExceptionInterface) {
+		if($exception instanceof AuthenticationException) {
+			$data['errorCode'] = Response::HTTP_UNAUTHORIZED;
+			$data['errorMessage'] = $this->trans(
+				$exception->getMessageKey(),
+				$exception->getMessageData()
+			);
+		} else if($exception instanceof TranslatableExceptionInterface) {
 			$data['errorMessage'] = $this->trans(
 				$exception->getMessageKey(),
 				$exception->getMessageData(),
