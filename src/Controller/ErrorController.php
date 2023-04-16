@@ -58,22 +58,25 @@ class ErrorController {
 				$data['errorTrace'] .= $exex->getTraceAsString();
 			}
 		}
-		if($this->translator) {
-			if($exception instanceof TranslatableExceptionInterface) {
-				$data['errorMessage'] = $this->translator->trans(
-					$exception->getMessageKey(),
-					$exception->getMessageData(),
-					$exception->getMessageDomain() ?: 'exceptions'
-				);
-			} else {
-				$data['errorMessage'] = $this->translator->trans($data['errorMessage'], [], 'exceptions');
-			}
+		if($exception instanceof TranslatableExceptionInterface) {
+			$data['errorMessage'] = $this->trans(
+				$exception->getMessageKey(),
+				$exception->getMessageData(),
+				$exception->getMessageDomain() ?: 'exceptions'
+			);
+		} else {
+			$data['errorMessage'] = $this->trans($data['errorMessage']);
 		}
 
 		return $useJson
 			? new JsonResponse($data, $data['errorCode'], $responseHeaders)
 			: $this->render($data, $data['errorCode'], $responseHeaders)
 		;
+	}
+
+	private function trans(string $key, array $data = [], string $domain = 'exceptions'): string {
+		if(!$this->translator) return strtr($key, $data);
+		$this->translator->trans($key, $data, $domain);
 	}
 
 	protected function render(array $data, int $status, array $headers): Response {
