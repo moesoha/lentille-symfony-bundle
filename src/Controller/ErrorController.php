@@ -50,7 +50,14 @@ class ErrorController {
 			$data['errorMessage'] = 'Internal Error';
 		}
 
-		if($showTrace) $data['errorTrace'] = $exception->getTraceAsString();
+		if($showTrace) {
+			$data['errorTrace'] = $exception->getTraceAsString();
+			$exex = $exception;
+			while($exex = $exex->getPrevious()) {
+				$data['errorTrace'] .= "\n\n========== ".$exex::class." ==========\n";
+				$data['errorTrace'] .= $exex->getTraceAsString();
+			}
+		}
 		if($this->translator) {
 			if($exception instanceof TranslatableExceptionInterface) {
 				$data['errorMessage'] = $this->translator->trans(
