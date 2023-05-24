@@ -5,10 +5,8 @@ namespace Lentille\SymfonyBundle\Paginator;
 use Doctrine\ORM\Query;
 use Doctrine\ORM\QueryBuilder;
 use Doctrine\ORM\Tools\Pagination\Paginator;
-use Symfony\Component\Serializer\Normalizer\NormalizableInterface;
-use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 
-class DoctrinePaginator implements NormalizableInterface {
+class DoctrinePaginator implements NormalizablePaginatorInterface {
 	private readonly Paginator $paginator;
 	private ?array $result = null;
 	private readonly int $page;
@@ -42,13 +40,5 @@ class DoctrinePaginator implements NormalizableInterface {
 			$this->result = iterator_to_array($this->paginator);
 		}
 		return $this->result;
-	}
-
-	public function normalize(NormalizerInterface $normalizer, string $format = null, array $context = []): array {
-		return [
-			'perPage' => $this->getPerPage(),
-			'count' => $this->getCount(),
-			'result' => $normalizer->normalize($this->getResult(), $format, $context)
-		];
 	}
 }
