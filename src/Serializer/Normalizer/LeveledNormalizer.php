@@ -2,6 +2,7 @@
 
 namespace Lentille\SymfonyBundle\Serializer\Normalizer;
 
+use Doctrine\Common\Util\ClassUtils;
 use Lentille\SymfonyBundle\Serializer\LeveledNormalizer\LeveledNormalizerInterface;
 use Lentille\SymfonyBundle\Serializer\LeveledNormalizer\NormalizeLevel;
 use Symfony\Component\DependencyInjection\Attribute\AutoconfigureTag;
@@ -29,10 +30,17 @@ class LeveledNormalizer implements NormalizerInterface, SerializerAwareInterface
 		$this->normalizers = $normalizers instanceof \Traversable ? iterator_to_array($normalizers) : $normalizers;
 	}
 
+	private static function getClassName(object $object): string {
+		if(class_exists(ClassUtils::class)) {
+			return ClassUtils::getClass($object);
+		}
+		return $object::class;
+	}
+
 	public function normalize(mixed $object, string $format = null, array $context = []): mixed {
 		$key = '[UnknownObject]';
 		if(is_object($object)) {
-			$normalizer = $this->normalizers[$key = $object::class];
+			$normalizer = $this->normalizers[$key = self::getClassName($object)];
 		}
 		if(empty($normalizer)) {
 			throw new \RuntimeException('Cannot find normalizer for '.$key);
@@ -58,7 +66,7 @@ class LeveledNormalizer implements NormalizerInterface, SerializerAwareInterface
 
 	public function supportsNormalization(mixed $data, string $format = null, array $context = []): bool {
 		if(is_object($data)) {
-			return array_key_exists($data::class, $this->normalizers);
+			return array_key_exists(self::getClassName($data), $this->normalizers);
 		}
 		return false;
 	}
