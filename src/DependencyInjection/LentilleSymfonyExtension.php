@@ -54,7 +54,7 @@ class LentilleSymfonyExtension extends Extension implements PrependExtensionInte
 		}
 	}
 
-	public function prepend(ContainerBuilder $container) {
+	public function prepend(ContainerBuilder $container): void {
 		$container->prependExtensionConfig('framework', [
 			'error_controller' => ErrorController::class
 		]);
