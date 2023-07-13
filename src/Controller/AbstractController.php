@@ -2,10 +2,12 @@
 
 namespace Lentille\SymfonyBundle\Controller;
 
+use Lentille\SymfonyBundle\Exception\FormErrorException;
 use Lentille\SymfonyBundle\Frontend\FrontendRenderer;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController as SymfonyAbstractController;
 use Symfony\Component\Form\Extension\Core\Type\FormType;
 use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\Response;
 
 class AbstractController extends SymfonyAbstractController {
@@ -37,5 +39,11 @@ class AbstractController extends SymfonyAbstractController {
 		array $options = []
 	): FormBuilderInterface {
 		return $this->container->get('form.factory')->createNamedBuilder($name, $type, $data, $options);
+	}
+
+	protected function assertValidSubmittedForm(FormInterface $form): void {
+		if (!$form->isSubmitted() || !$form->isValid()) {
+			throw FormErrorException::createFromForm($form);
+		}
 	}
 }
