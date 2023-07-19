@@ -21,6 +21,9 @@ class FormErrorException extends BadRequestHttpException implements ErrorExtraDa
 		if($e->extraData['submitted'] = $form->isSubmitted()) {
 			$e->extraData['valid'] = $form->isValid();
 		}
+		if(!empty($formName = $form->getName())) {
+			$e->extraData['name'] = $formName;
+		}
 		return $e;
 	}
 
