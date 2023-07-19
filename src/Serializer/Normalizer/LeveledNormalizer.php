@@ -64,6 +64,13 @@ class LeveledNormalizer implements NormalizerInterface, SerializerAwareInterface
 		return $this->serializer->normalize($data, $format, $context);
 	}
 
+	public function getSupportedTypes(?string $format): array {
+		return [
+			'object' => true,
+			'*' => null
+		];
+	}
+
 	public function supportsNormalization(mixed $data, string $format = null, array $context = []): bool {
 		if(is_object($data)) {
 			return array_key_exists(self::getClassName($data), $this->normalizers);
