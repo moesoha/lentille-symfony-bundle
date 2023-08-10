@@ -83,7 +83,7 @@ class ErrorController {
 
 	private function trans(string $key, array $data = [], string $domain = 'exceptions'): string {
 		if(!$this->translator) return strtr($key, $data);
-		$this->translator->trans($key, $data, $domain);
+		return $this->translator->trans($key, $data, $domain);
 	}
 
 	protected function render(array $data, int $status, array $headers): Response {
