@@ -5,8 +5,9 @@ namespace Lentille\SymfonyBundle\Serializer\Normalizer;
 use Doctrine\Common\Util\ClassUtils;
 use Lentille\SymfonyBundle\Serializer\LeveledNormalizer\LeveledNormalizerInterface;
 use Lentille\SymfonyBundle\Serializer\LeveledNormalizer\NormalizeLevel;
+use Psr\Container\ContainerInterface;
 use Symfony\Component\DependencyInjection\Attribute\AutoconfigureTag;
-use Symfony\Component\DependencyInjection\Attribute\TaggedIterator;
+use Symfony\Component\DependencyInjection\Attribute\TaggedLocator;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 use Symfony\Component\Serializer\SerializerAwareInterface;
 use Symfony\Component\Serializer\SerializerAwareTrait;
@@ -18,16 +19,9 @@ class LeveledNormalizer implements NormalizerInterface, SerializerAwareInterface
 	public const CONTEXT_LEVEL_MAP = self::class . '+LevelMap';
 	public const CONTEXT_PARAMETER = self::class . '+Parameter';
 
-	/** @var array<class-string, LeveledNormalizerInterface> */
-	private readonly array $normalizers;
-
-	/**
-	 * @param LeveledNormalizerInterface[] $normalizers
-	 */
 	public function __construct(
-		#[TaggedIterator('lentille.serializer.leveled_normalizer', indexAttribute: 'index')] iterable $normalizers
+		#[TaggedLocator('lentille.serializer.leveled_normalizer')] private readonly ContainerInterface $normalizers
 	) {
-		$this->normalizers = $normalizers instanceof \Traversable ? iterator_to_array($normalizers) : $normalizers;
 	}
 
 	private static function getClassName(object $object): string {
@@ -40,7 +34,8 @@ class LeveledNormalizer implements NormalizerInterface, SerializerAwareInterface
 	public function normalize(mixed $object, string $format = null, array $context = []): mixed {
 		$key = '[UnknownObject]';
 		if(is_object($object)) {
-			$normalizer = $this->normalizers[$key = self::getClassName($object)];
+			/** @var LeveledNormalizerInterface $normalizer */
+			$normalizer = $this->normalizers->get($key = self::getClassName($object));
 		}
 		if(empty($normalizer)) {
 			throw new \RuntimeException('Cannot find normalizer for '.$key);
@@ -73,7 +68,7 @@ class LeveledNormalizer implements NormalizerInterface, SerializerAwareInterface
 
 	public function supportsNormalization(mixed $data, string $format = null, array $context = []): bool {
 		if(is_object($data)) {
-			return array_key_exists(self::getClassName($data), $this->normalizers);
+			return $this->normalizers->has(self::getClassName($data));
 		}
 		return false;
 	}
