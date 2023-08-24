@@ -3,12 +3,10 @@
 namespace Lentille\SymfonyBundle\Serializer\Normalizer;
 
 use Lentille\SymfonyBundle\Serializer\LeveledNormalizer\PinNormalizeLevel;
-use Symfony\Component\DependencyInjection\Attribute\AutoconfigureTag;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 use Symfony\Component\Serializer\SerializerAwareInterface;
 use Symfony\Component\Serializer\SerializerAwareTrait;
 
-#[AutoconfigureTag('serializer.normalizer', ['priority' => -840])]
 class PinNormalizeLevelNormalizer implements NormalizerInterface, SerializerAwareInterface {
 	use SerializerAwareTrait;
 

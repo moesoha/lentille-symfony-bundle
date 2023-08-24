@@ -2,11 +2,9 @@
 
 namespace Lentille\SymfonyBundle\Serializer\Normalizer;
 
-use Symfony\Component\DependencyInjection\Attribute\AutoconfigureTag;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 
-#[AutoconfigureTag('serializer.normalizer', ['priority' => -820])]
-class DateTimeNormalizer implements NormalizerInterface {
+class DateTimeTimestampNormalizer implements NormalizerInterface {
 	/**
 	 * @param \DateTimeInterface $object
 	 */

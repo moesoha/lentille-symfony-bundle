@@ -11,7 +11,7 @@ use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Extension\Extension;
 use Symfony\Component\DependencyInjection\Extension\PrependExtensionInterface;
-use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
+use Symfony\Component\DependencyInjection\Loader\PhpFileLoader;
 
 class LentilleSymfonyExtension extends Extension implements PrependExtensionInterface {
 	public function getAlias(): string {
@@ -22,8 +22,9 @@ class LentilleSymfonyExtension extends Extension implements PrependExtensionInte
 		$configuration = new Configuration();
 		$config = $this->processConfiguration($configuration, $configs);
 
-		$loader = new YamlFileLoader($container, new FileLocator(__DIR__.'/../../config'));
-		$loader->load('services.yaml');
+		$loader = new PhpFileLoader($container, new FileLocator(__DIR__.'/../Resource/config'));
+		$loader->load('serializer.php');
+		$loader->load('autoconfigure.php');
 
 		$container
 			->getDefinition(ErrorController::class)

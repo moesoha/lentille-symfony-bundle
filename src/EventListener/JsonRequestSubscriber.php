@@ -8,7 +8,7 @@ use Symfony\Component\HttpKernel\Event\RequestEvent;
 
 #[AsEventListener(RequestEvent::class, 'onKernelRequest', 100)]
 class JsonRequestSubscriber {
-	public function onKernelRequest(RequestEvent $event) {
+	public function onKernelRequest(RequestEvent $event): void {
 		$request = $event->getRequest();
 		$content = trim((string)$request->getContent());
 		if($request->getContentTypeFormat() !== 'json' || empty($content)) {

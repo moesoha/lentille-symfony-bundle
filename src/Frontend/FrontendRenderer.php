@@ -2,7 +2,6 @@
 
 namespace Lentille\SymfonyBundle\Frontend;
 
-use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
@@ -19,7 +18,7 @@ class FrontendRenderer {
 		private readonly RequestStack $requestStack,
 		private readonly ?TokenStorageInterface $tokenStorage,
 		private readonly ?FrontendInitialRendererInterface $initialRenderer,
-		#[Autowire(service: 'serializer')] private readonly SerializerInterface $serializer
+		private readonly SerializerInterface $serializer
 	) {}
 
 	public function render(string $template, array $data = [], int $status = 200, array $headers = [], array $context = []): Response {
