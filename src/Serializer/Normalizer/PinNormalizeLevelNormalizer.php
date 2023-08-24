@@ -8,7 +8,7 @@ use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 use Symfony\Component\Serializer\SerializerAwareInterface;
 use Symfony\Component\Serializer\SerializerAwareTrait;
 
-#[AutoconfigureTag(attributes: ['priority' => -650])]
+#[AutoconfigureTag('serializer.normalizer', ['priority' => -840])]
 class PinNormalizeLevelNormalizer implements NormalizerInterface, SerializerAwareInterface {
 	use SerializerAwareTrait;
 

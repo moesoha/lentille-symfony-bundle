@@ -12,7 +12,7 @@ use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 use Symfony\Component\Serializer\SerializerAwareInterface;
 use Symfony\Component\Serializer\SerializerAwareTrait;
 
-#[AutoconfigureTag(attributes: ['priority' => -600])]
+#[AutoconfigureTag('serializer.normalizer', ['priority' => -850])]
 class LeveledNormalizer implements NormalizerInterface, SerializerAwareInterface {
 	use SerializerAwareTrait;
 
