@@ -21,6 +21,10 @@ class NormalizablePaginatorNormalizer implements NormalizerInterface, Serializer
 		];
 	}
 
+	public function getSupportedTypes(?string $format): array {
+		return [NormalizablePaginatorInterface::class => true];
+	}
+
 	public function supportsNormalization(mixed $data, string $format = null, array $context = []): bool {
 		return $data instanceof NormalizablePaginatorInterface;
 	}

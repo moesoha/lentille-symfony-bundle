@@ -12,6 +12,10 @@ class DateTimeTimestampNormalizer implements NormalizerInterface {
 		return $object->getTimestamp();
 	}
 
+	public function getSupportedTypes(?string $format): array {
+		return [\DateTimeInterface::class => true];
+	}
+
 	public function supportsNormalization(mixed $data, string $format = null, array $context = []): bool {
 		return $data instanceof \DateTimeInterface;
 	}
