@@ -36,7 +36,6 @@ class LentilleSymfonyExtension extends Extension implements PrependExtensionInte
 
 		if(class_exists(\Twig\Environment::class)) {
 			$loader->load('twig.php');
-			$container->setAlias(FrontendInitialRendererInterface::class, TwigInitialRenderer::class);
 		}
 
 		$container

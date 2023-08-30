@@ -2,6 +2,8 @@
 
 namespace Lentille\SymfonyBundle\DependencyInjection\Loader\Configurator;
 
+use Lentille\SymfonyBundle\Frontend\FrontendInitialRendererInterface;
+use Lentille\SymfonyBundle\Twig\TwigInitialRenderer;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 
 return static function (ContainerConfigurator $configurator) {
@@ -11,4 +13,5 @@ return static function (ContainerConfigurator $configurator) {
 		->autowire()
 		->autoconfigure()
 	;
+	$services->alias(FrontendInitialRendererInterface::class, TwigInitialRenderer::class);
 };
