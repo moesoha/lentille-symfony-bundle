@@ -2,7 +2,6 @@
 
 namespace Lentille\SymfonyBundle\DependencyInjection\Loader\Configurator;
 
-use Lentille\SymfonyBundle\Serializer\LeveledNormalizer\LeveledNormalizerInterface;
 use Lentille\SymfonyBundle\Serializer\Normalizer\DateTimeTimestampNormalizer;
 use Lentille\SymfonyBundle\Serializer\Normalizer\LeveledNormalizer;
 use Lentille\SymfonyBundle\Serializer\Normalizer\NormalizablePaginatorNormalizer;
@@ -27,10 +26,5 @@ return static function (ContainerConfigurator $configurator) {
 	$services
 		->set('serializer.normalizer.lentille_leveled_pinned', PinNormalizeLevelNormalizer::class)
 		->tag('serializer.normalizer', ['priority' => -840])
-	;
-	$services
-		->instanceof(LeveledNormalizerInterface::class)
-		->tag('lentille.serializer.leveled_normalizer')
-		->lazy()
 	;
 };

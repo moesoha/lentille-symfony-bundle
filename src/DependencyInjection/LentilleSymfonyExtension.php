@@ -6,6 +6,7 @@ use Lentille\SymfonyBundle\Controller\ErrorController;
 use Lentille\SymfonyBundle\Frontend\ConfigEntry\ExportableEnumEntry;
 use Lentille\SymfonyBundle\Frontend\FrontendConfig;
 use Lentille\SymfonyBundle\Frontend\FrontendInitialRendererInterface;
+use Lentille\SymfonyBundle\Serializer\LeveledNormalizer\LeveledNormalizerInterface;
 use Lentille\SymfonyBundle\Twig\TwigInitialRenderer;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -23,8 +24,20 @@ class LentilleSymfonyExtension extends Extension implements PrependExtensionInte
 		$config = $this->processConfiguration($configuration, $configs);
 
 		$loader = new PhpFileLoader($container, new FileLocator(__DIR__.'/../Resource/config'));
-		$loader->load('serializer.php');
 		$loader->load('autoconfigure.php');
+
+		if(interface_exists(\Symfony\Component\Serializer\Normalizer\NormalizerInterface::class)) {
+			$loader->load('serializer.php');
+			$container
+				->registerForAutoconfiguration(LeveledNormalizerInterface::class)
+				->addTag('lentille.serializer.leveled_normalizer')
+				->setLazy(true);
+		}
+
+		if(class_exists(\Twig\Environment::class)) {
+			$loader->load('twig.php');
+			$container->setAlias(FrontendInitialRendererInterface::class, TwigInitialRenderer::class);
+		}
 
 		$container
 			->getDefinition(ErrorController::class)
@@ -49,11 +62,6 @@ class LentilleSymfonyExtension extends Extension implements PrependExtensionInte
 		// 		$definition->addTag(AsExportableEnum::TAG);
 		// 	}
 		// );
-
-		if(class_exists(\Twig\Environment::class)) {
-			$loader->load('twig.php');
-			$container->setAlias(FrontendInitialRendererInterface::class, TwigInitialRenderer::class);
-		}
 	}
 
 	public function prepend(ContainerBuilder $container): void {
