@@ -5,7 +5,7 @@ namespace Lentille\SymfonyBundle\Controller;
 use Lentille\SymfonyBundle\Attribute\Api;
 use Lentille\SymfonyBundle\Exception\ErrorExtraDataInterface;
 use Lentille\SymfonyBundle\Exception\TranslatableExceptionInterface;
-use Lentille\SymfonyBundle\Frontend\FrontendRenderer;
+use Lentille\SymfonyBundle\Frontend\FrontendRendererInterface;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -24,7 +24,7 @@ class ErrorController {
 		#[Autowire(value: '%kernel.environment%')] private readonly string $environment,
 		private readonly ?TranslatorInterface $translator,
 		private readonly ?AuthorizationCheckerInterface $authorizationChecker,
-		private readonly ?FrontendRenderer $renderer,
+		private readonly ?FrontendRendererInterface $renderer,
 		private readonly array $traceRoles
 	) { }
 

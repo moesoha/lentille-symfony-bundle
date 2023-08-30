@@ -2,6 +2,8 @@
 
 namespace Lentille\SymfonyBundle\DependencyInjection\Loader\Configurator;
 
+use Lentille\SymfonyBundle\Frontend\FrontendRenderer;
+use Lentille\SymfonyBundle\Frontend\FrontendRendererInterface;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 
 return static function (ContainerConfigurator $configurator) {
@@ -29,4 +31,5 @@ return static function (ContainerConfigurator $configurator) {
 		->autowire()
 		->autoconfigure()
 	;
+	$services->alias(FrontendRendererInterface::class, FrontendRenderer::class);
 };

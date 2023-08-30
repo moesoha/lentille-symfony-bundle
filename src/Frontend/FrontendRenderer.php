@@ -8,7 +8,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Symfony\Component\Serializer\SerializerInterface;
 
-class FrontendRenderer {
+class FrontendRenderer implements FrontendRendererInterface {
 	private const DATA_TYPE_HEADER = 'x-lentille-request';
 	private const RESPONSE_HEADERS = [
 		'Vary' => self::DATA_TYPE_HEADER
