@@ -17,7 +17,8 @@ class DoctrinePaginator implements NormalizablePaginatorInterface {
 	public function __construct(
 		Query|QueryBuilder|Paginator|Collection $iterable,
 		int $limit, int $page,
-		private readonly ?int $countOverride = null
+		private readonly ?int $countOverride = null,
+		private readonly ?int $countMax = null
 	) {
 		$this->criteria = (new Criteria())
 			->setFirstResult((max(1, $page) - 1) * $limit)
@@ -48,7 +49,10 @@ class DoctrinePaginator implements NormalizablePaginatorInterface {
 	}
 
 	public function getCount(): int {
-		return $this->countOverride ?? $this->iterable->count();
+		if($this->countOverride !== null) return $this->countOverride;
+		$count = $this->iterable->count();
+		if($this->countMax !== null) return min($count, $this->countMax);
+		return $count;
 	}
 
 	public function getResult(): array {
