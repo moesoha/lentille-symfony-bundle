@@ -61,13 +61,13 @@ class DoctrinePaginator implements NormalizablePaginatorInterface {
 			return $this->result = iterator_to_array($this->iterable);
 		}
 		if($this->iterable instanceof Selectable) {
-			return $this->result = $this->iterable->matching($this->criteria)->toArray();
+			return $this->result = array_values($this->iterable->matching($this->criteria)->toArray());
 		}
 		if($this->iterable instanceof Collection) {
-			return $this->result = $this->iterable->slice(
+			return $this->result = array_values($this->iterable->slice(
 				$this->criteria->getFirstResult(),
 				$this->criteria->getMaxResults()
-			);
+			));
 		}
 		throw new \InvalidArgumentException('Unexpected object to getResult: '.$this->iterable::class);
 	}
