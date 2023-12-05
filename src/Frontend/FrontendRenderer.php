@@ -3,6 +3,7 @@
 namespace Lentille\SymfonyBundle\Frontend;
 
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
@@ -21,6 +22,10 @@ class FrontendRenderer implements FrontendRendererInterface {
 		private readonly SerializerInterface $serializer
 	) {}
 
+	public function isContentRequest(Request $request): bool {
+		return strtolower($request->headers->get(self::DATA_TYPE_HEADER, '')) === 'content-only';
+	}
+
 	public function render(string $template, array $data = [], int $status = 200, array $headers = [], array $context = []): Response {
 		$instance = 'main';
 		if($colon = mb_strpos($template, ':')) {
@@ -31,7 +36,7 @@ class FrontendRenderer implements FrontendRendererInterface {
 		if(empty($data)) $data[':'] = 0;
 		$request = $this->requestStack->getCurrentRequest();
 		$responseHeader = $headers + self::RESPONSE_HEADERS;
-		$contentOnly = strtolower($request->headers->get(self::DATA_TYPE_HEADER, '')) === 'content-only';
+		$contentOnly = $this->isContentRequest($request);
 
 		$frontendData = $this->serializer->serialize([
 			'instance' => $instance,

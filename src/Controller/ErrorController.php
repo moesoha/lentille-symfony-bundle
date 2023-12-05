@@ -103,6 +103,7 @@ class ErrorController {
 	}
 
 	private function shouldReturnJson(Request $request): bool {
+		if($this->renderer?->isContentRequest($request)) return false;
 		if(
 			($request->getRequestFormat() === 'json') ||
 			($request->getContentTypeFormat() === 'json') ||
