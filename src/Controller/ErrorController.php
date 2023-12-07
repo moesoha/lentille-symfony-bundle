@@ -63,7 +63,8 @@ class ErrorController {
 			$data['errorCode'] = Response::HTTP_UNAUTHORIZED;
 			$data['errorMessage'] = $this->trans(
 				$exception->getMessageKey(),
-				$exception->getMessageData()
+				$exception->getMessageData(),
+				'security'
 			);
 		} else if($exception instanceof TranslatableExceptionInterface) {
 			$data['errorMessage'] = $this->trans(
