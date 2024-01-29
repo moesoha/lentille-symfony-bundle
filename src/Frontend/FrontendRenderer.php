@@ -42,7 +42,7 @@ class FrontendRenderer implements FrontendRendererInterface {
 			'instance' => $instance,
 			'template' => $template,
 			'status' => $status,
-			'locale' => $request->getLocale(),
+			'locale' => strtr($request->getLocale(), '_', '-'),
 			'data' => $data,
 			'user' => $this->tokenStorage?->getToken()?->getUser(),
 			'time' => microtime(true)
