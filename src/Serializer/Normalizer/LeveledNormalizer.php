@@ -46,13 +46,13 @@ class LeveledNormalizer implements NormalizerInterface, SerializerAwareInterface
 		$level = $level->value;
 		$data = [];
 		if($level & NormalizeLevel::MaskLittle) {
-			$data += $normalizer->littleAdditionalData($object, $param);
+			$data = array_merge($data, $normalizer->littleAdditionalData($object, $param));
 		}
 		if($level & NormalizeLevel::MaskNormal) {
-			$data += $normalizer->normalAdditionalData($object, $param);
+			$data = array_merge($data, $normalizer->normalAdditionalData($object, $param));
 		}
 		if($level & NormalizeLevel::MaskDetail) {
-			$data += $normalizer->detailAdditionalData($object, $param);
+			$data = array_merge($data, $normalizer->detailAdditionalData($object, $param));
 		}
 		return $this->serializer->normalize($data, $format, $context);
 	}
