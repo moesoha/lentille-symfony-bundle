@@ -19,10 +19,11 @@ class FrontendConfig implements CacheWarmerInterface {
 	public function __construct(
 		#[Autowire('%kernel.debug%')] bool $isDebug,
 		#[Autowire('%kernel.cache_dir%')] private string $cacheDir,
-		#[Autowire('%kernel.default_locale%')] private string $defaultLocale,
 		#[TaggedIterator('lentille.frontend_config.entry')] private readonly iterable $entries,
-		private readonly array $instances = ['main'],
-		private readonly array $warmupLocales = []
+		#[Autowire('%kernel.default_locale%')] private readonly string $defaultLocale,
+		#[Autowire('%kernel.enabled_locales%')] private readonly array $enabledLocales,
+		private readonly array $warmupLocales = [],
+		private readonly array $instances = ['main']
 	) {
 		$this->configCacheFactory = new ConfigCacheFactory($isDebug);
 	}
@@ -47,7 +48,11 @@ class FrontendConfig implements CacheWarmerInterface {
 		$this->cacheDir = $cacheDir;
 
 		foreach($this->instances as $i) {
-			foreach(array_unique(array_merge($this->warmupLocales, [$this->defaultLocale])) as $l) {
+			foreach(array_unique(array_merge(
+				$this->enabledLocales,
+				$this->warmupLocales,
+				[$this->defaultLocale]
+			)) as $l) {
 				$this->getConfig($i, $l);
 			}
 		}
