@@ -17,56 +17,60 @@ class RouterConfigEntry implements ConfigEntryInterface {
 		$routesAttr = [];
 		/** @var Route $route */
 		foreach($this->router->getRouteCollection() as $name => $route) {
-			/** @var FrontendVisible[] $singleAttrs */
-			$singleAttrs = [];
-			/** @var FrontendVisible[] $mergedAttrs */
-			$mergedAttrs = [];
+			$visible = false;
+			$ownerInstance = null;
+			$visibleInstances = [];
+			$routeAttributes = [];
 
 			if(!is_string($controller = $route->getDefault('_controller'))) continue;
 			$controller = explode('::', $controller);
 			if(class_exists($controller[0])) {
 				$class = new \ReflectionClass($controller[0]);
-				$singleAttrs = array_map(fn($a) => $a->newInstance(), $class->getAttributes(FrontendVisible::class));
-				$mergedAttrs += $singleAttrs;
+				if($attr = ($class->getAttributes(FrontendVisible::class)[0] ?? null)?->newInstance()) {
+					if($visible = !$attr->disable) {
+						$ownerInstance = $attr->instance;
+						$visibleInstances = $attr->visibleInstances;
+						$routeAttributes = array_merge($routeAttributes, $attr->attribute);
+					}
+				}
 			}
 			if(isset($class) && !empty($controller[1])) {
 				try {
-					if(!empty($attrs = $class->getMethod($controller[1])->getAttributes(FrontendVisible::class))) {
-						$singleAttrs = array_map(fn($a) => $a->newInstance(), $attrs);
-						$mergedAttrs += $singleAttrs;
+					$attrs = $class->getMethod($controller[1])->getAttributes(FrontendVisible::class);
+					if($attr = ($attrs[0] ?? null)?->newInstance()) {
+						if($visible = !$attr->disable) {
+							if($attr->instance) {
+								$ownerInstance = $attr->instance;
+							}
+							if(!empty($attr->visibleInstances)) {
+								$visibleInstances = $attr->visibleInstances;
+							}
+							$routeAttributes = array_merge($routeAttributes, $attr->attribute);
+						}
 					}
 				} catch(\ReflectionException) {
 					// method may not exist
 				}
 			}
 
-			if($this->checkInstance($args->instance, $singleAttrs)) {
-				$routes[$name] = $route->getPath();
-				$attr = array_reduce(
-					$mergedAttrs,
-					fn(array $c, FrontendVisible $a) => array_merge($c, $a->attribute),
-					[]
-				);
-				if(!empty($attr)) {
-					$routesAttr[$name] = $attr;
-				}
+			if(!$visible) continue;
+			$ownerInstance ??= 'main';
+			$isCurrentInstance = $args->instance === $ownerInstance;
+			if(!$isCurrentInstance && !in_array($args->instance, $visibleInstances)) {
+				continue;
+			}
+
+			$sysAttributes = [];
+			if(!$isCurrentInstance) {
+				$sysAttributes['instance'] = $ownerInstance;
+			}
+			$attrs = array_merge($sysAttributes, $routeAttributes);
+
+			$routes[$name] = $route->getPath();
+			if(!empty($attrs)) {
+				$routesAttr[$name] = $attrs;
 			}
 		}
 		return ['route' => $routes, 'routeAttr' => $routesAttr];
-	}
-
-	/**
-	 * @param string $instance
-	 * @param FrontendVisible[] $attributes
-	 * @return bool
-	 */
-	private function checkInstance(string $instance, array $attributes): bool {
-		foreach($attributes as $attr) {
-			$instances = $attr->instances ?? [];
-			if(empty($instances) || in_array($instance, $instances)) {
-				return true;
-			}
-		}
-		return false;
 	}
 }

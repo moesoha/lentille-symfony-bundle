@@ -5,7 +5,9 @@ namespace Lentille\SymfonyBundle\Attribute;
 #[\Attribute(\Attribute::TARGET_CLASS | \Attribute::TARGET_METHOD)]
 class FrontendVisible {
 	public function __construct(
-		public readonly array $instances = [],
-		public readonly array $attribute = []
+		public readonly array $attribute = [],
+		public readonly ?string $instance = null,
+		public readonly array $visibleInstances = [],
+		public readonly bool $disable = false
 	) { }
 }
