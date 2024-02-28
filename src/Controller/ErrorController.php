@@ -46,7 +46,7 @@ class ErrorController {
 		];
 		if($exception instanceof HttpExceptionInterface) {
 			$data['errorCode'] = $exception->getStatusCode();
-			$responseHeaders += $exception->getHeaders();
+			$responseHeaders = array_merge($responseHeaders, $exception->getHeaders());
 		} else if (!$showTrace && !($exception instanceof \InvalidArgumentException)) {
 			$data['errorMessage'] = 'Internal Error';
 		}

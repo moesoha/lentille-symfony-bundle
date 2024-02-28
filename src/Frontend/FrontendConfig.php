@@ -69,7 +69,7 @@ class FrontendConfig implements CacheWarmerInterface {
 		$vars = [];
 		/** @var ConfigEntryInterface $entry */
 		foreach($this->entries as $entry) {
-			$vars += $entry->getConfig($args);
+			$vars = array_merge($vars, $entry->getConfig($args));
 		}
 		$vars['_locale'] = $args->locale;
 		$vars['_instance'] = $args->instance;
