@@ -14,6 +14,7 @@ use Symfony\Component\HttpKernel\CacheWarmer\CacheWarmerInterface;
 
 class FrontendConfig implements CacheWarmerInterface {
 	private readonly ConfigCacheFactoryInterface $configCacheFactory;
+	private readonly array $instanceVisibleMap;
 	private static ?array $cache = [];
 
 	public function __construct(
@@ -23,9 +24,15 @@ class FrontendConfig implements CacheWarmerInterface {
 		#[Autowire('%kernel.default_locale%')] private readonly string $defaultLocale,
 		#[Autowire('%kernel.enabled_locales%')] private readonly array $enabledLocales,
 		private readonly array $warmupLocales = [],
+		private readonly array $instanceVisibleTo = [],
 		private readonly array $instances = ['main']
 	) {
 		$this->configCacheFactory = new ConfigCacheFactory($isDebug);
+		$visibleMap = [];
+		foreach($this->instanceVisibleTo as $instance => $visibleTo) {
+			foreach($visibleTo as $i) $visibleMap[$i][] = $instance;
+		}
+		$this->instanceVisibleMap = $visibleMap;
 	}
 
 	public function getConfig(string $instance, ?string $locale = null): array {
@@ -34,6 +41,8 @@ class FrontendConfig implements CacheWarmerInterface {
 		}
 		$args = new ConfigGetterArgs(
 			instance: $instance,
+			instanceVisible: $this->instanceVisibleMap[$instance] ?? [],
+			instanceVisibleTo: $this->instanceVisibleTo[$instance] ?? [],
 			locale: $locale ?: $this->defaultLocale
 		);
 		$cache = $this->configCacheFactory->cache(

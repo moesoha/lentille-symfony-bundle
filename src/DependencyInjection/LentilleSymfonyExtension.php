@@ -46,6 +46,7 @@ class LentilleSymfonyExtension extends Extension implements PrependExtensionInte
 		$container
 			->getDefinition(FrontendConfig::class)
 			->setArgument('$instances', $config['frontend']['instances'])
+			->setArgument('$instanceVisibleTo', $config['frontend']['instance_visible_to'])
 			->setArgument('$warmupLocales', $config['warmup']['locales'])
 		;
 
