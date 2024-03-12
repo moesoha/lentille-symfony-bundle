@@ -2,6 +2,7 @@
 
 namespace Lentille\SymfonyBundle\Frontend\ConfigEntry;
 
+use Lentille\SymfonyBundle\Attribute\Api;
 use Lentille\SymfonyBundle\Attribute\FrontendVisible;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\Routing\Route;
@@ -18,6 +19,7 @@ class RouterConfigEntry implements ConfigEntryInterface {
 		/** @var Route $route */
 		foreach($this->router->getRouteCollection() as $name => $route) {
 			$visible = false;
+			$isApi = false;
 			$ownerInstance = null;
 			$visibleInstances = [];
 			$routeAttributes = [];
@@ -26,6 +28,7 @@ class RouterConfigEntry implements ConfigEntryInterface {
 			$controller = explode('::', $controller);
 			if(class_exists($controller[0])) {
 				$class = new \ReflectionClass($controller[0]);
+				$isApi = $isApi || !empty($class->getAttributes(Api::class));
 				if($attr = ($class->getAttributes(FrontendVisible::class)[0] ?? null)?->newInstance()) {
 					if($visible = !$attr->disable) {
 						$ownerInstance = $attr->instance;
@@ -36,6 +39,7 @@ class RouterConfigEntry implements ConfigEntryInterface {
 			}
 			if(isset($class) && !empty($controller[1])) {
 				try {
+					$isApi = $isApi || !empty($class->getAttributes(Api::class));
 					$attrs = $class->getMethod($controller[1])->getAttributes(FrontendVisible::class);
 					if($attr = ($attrs[0] ?? null)?->newInstance()) {
 						if($visible = !$attr->disable) {
@@ -56,12 +60,16 @@ class RouterConfigEntry implements ConfigEntryInterface {
 			if(!$visible) continue;
 			$ownerInstance ??= 'main';
 			$isCurrentInstance = $args->instance === $ownerInstance;
-			if(!$isCurrentInstance && !in_array($args->instance, $visibleInstances)) {
+			if(
+				!$isCurrentInstance
+				&& !in_array($args->instance, $visibleInstances)
+				&& !in_array($ownerInstance, $args->instanceVisible)
+			) {
 				continue;
 			}
 
 			$sysAttributes = [];
-			if(!$isCurrentInstance) {
+			if(!$isApi && !$isCurrentInstance) {
 				$sysAttributes['instance'] = $ownerInstance;
 			}
 			$attrs = array_merge($sysAttributes, $routeAttributes);
