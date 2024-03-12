@@ -7,9 +7,12 @@ use Doctrine\Common\Collections\Criteria;
 use Doctrine\Common\Collections\Selectable;
 use Doctrine\ORM\Query;
 use Doctrine\ORM\QueryBuilder;
+use Doctrine\ORM\Tools\Pagination\CountWalker;
 use Doctrine\ORM\Tools\Pagination\Paginator;
 
 class DoctrinePaginator implements NormalizablePaginatorInterface {
+	public const HINT_DOCTRINE_FETCH_JOIN_COLLECTION = 'lentille.paginator.doctrineFetchJoinCollection';
+	public const HINT_DOCTRINE_USE_OUTPUT_WALKERS = 'lentille.paginator.doctrineUseOutputWalkers';
 	private readonly Criteria $criteria;
 	private readonly Paginator|Collection $iterable;
 	private ?array $result = null;
@@ -39,7 +42,23 @@ class DoctrinePaginator implements NormalizablePaginatorInterface {
 				->setFirstResult($criteria->getFirstResult())
 				->setMaxResults($criteria->getMaxResults())
 			;
-			return new Paginator($iterable);
+			$hint = defined(Paginator::class.'::HINT_ENABLE_DISTINCT')
+				? Paginator::HINT_ENABLE_DISTINCT
+				: 'paginator.distinct.enable'
+			;
+			if(!$iterable->hasHint($hint)) {
+				$iterable->setHint($hint, false);
+			}
+			if(!$iterable->hasHint(CountWalker::HINT_DISTINCT)) {
+				$iterable->setHint(CountWalker::HINT_DISTINCT, false);
+			}
+			$p = new Paginator($iterable, (bool)$iterable->getHint(self::HINT_DOCTRINE_FETCH_JOIN_COLLECTION));
+			if(!$iterable->hasHint(self::HINT_DOCTRINE_USE_OUTPUT_WALKERS)) {
+				$p->setUseOutputWalkers(false);
+			} else {
+				$p->setUseOutputWalkers($iterable->getHint(self::HINT_DOCTRINE_USE_OUTPUT_WALKERS));
+			}
+			return $p;
 		}
 		throw new \InvalidArgumentException('Unexpected iterable to paginate: '.$iterable::class);
 	}
