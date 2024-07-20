@@ -10,6 +10,8 @@ use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInt
 use Symfony\Component\Serializer\SerializerInterface;
 
 class FrontendRenderer implements FrontendRendererInterface {
+	public const MORE_CONTEXT = self::class . '+MoreContext';
+
 	private const DATA_TYPE_HEADER = 'x-lentille-request';
 	private const RESPONSE_HEADERS = [
 		'Vary' => self::DATA_TYPE_HEADER
@@ -38,7 +40,8 @@ class FrontendRenderer implements FrontendRendererInterface {
 		$responseHeader = $headers + self::RESPONSE_HEADERS;
 		$contentOnly = $this->isContentRequest($request);
 
-		$frontendData = $this->serializer->serialize([
+		$moreContext = $context[self::MORE_CONTEXT] ?? [];
+		$frontendData = $this->serializer->serialize(array_merge([
 			'instance' => $instance,
 			'template' => $template,
 			'status' => $status,
@@ -46,7 +49,7 @@ class FrontendRenderer implements FrontendRendererInterface {
 			'data' => $data,
 			'user' => $this->tokenStorage?->getToken()?->getUser(),
 			'time' => microtime(true)
-		], 'json', array_merge([
+		], $moreContext), 'json', array_merge([
 			'json_encode_options' => JsonResponse::DEFAULT_ENCODING_OPTIONS,
 		], $context));
 
