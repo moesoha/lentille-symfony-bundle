@@ -15,6 +15,7 @@
 	},
 	"require-dev": {
 		"symfony/security-core": "^6.1",
+		"pagerfanta/pagerfanta": "^4.7",
 		"twig/twig": "^3.4"
 	},
 	"config": {
