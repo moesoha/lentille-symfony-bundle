@@ -59,11 +59,22 @@ class ErrorController {
 				$data['errorTrace'] .= $exex->getTraceAsString();
 			}
 		}
+
+		$authException = null;
 		if($exception instanceof AuthenticationException) {
+			$authException = $exception;
+		} else if(
+			($exception instanceof HttpExceptionInterface) &&
+			($exception->getPrevious() instanceof AuthenticationException)
+		) {
+			$authException = $exception->getPrevious();
+		}
+
+		if($authException) {
 			$data['errorCode'] = Response::HTTP_UNAUTHORIZED;
 			$data['errorMessage'] = $this->trans(
-				$exception->getMessageKey(),
-				$exception->getMessageData(),
+				$authException->getMessageKey(),
+				$authException->getMessageData(),
 				'security'
 			);
 		} else if($exception instanceof TranslatableExceptionInterface) {
