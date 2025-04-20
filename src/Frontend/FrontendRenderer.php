@@ -40,8 +40,7 @@ class FrontendRenderer implements FrontendRendererInterface {
 		$responseHeader = $headers + self::RESPONSE_HEADERS;
 		$contentOnly = $this->isContentRequest($request);
 
-		$moreContext = $context[self::MORE_CONTEXT] ?? [];
-		$frontendData = $this->serializer->serialize(array_merge([
+		$feContext = array_merge([
 			'instance' => $instance,
 			'template' => $template,
 			'status' => $status,
@@ -49,9 +48,13 @@ class FrontendRenderer implements FrontendRendererInterface {
 			'data' => $data,
 			'user' => $this->tokenStorage?->getToken()?->getUser(),
 			'time' => microtime(true)
-		], $moreContext), 'json', array_merge([
+		], $context[self::MORE_CONTEXT] ?? []);
+
+		$frontendData = $this->serializer->serialize($feContext, 'json', array_merge([
 			'json_encode_options' => JsonResponse::DEFAULT_ENCODING_OPTIONS,
 		], $context));
+
+		unset($feContext['data']); // no need to keep `data` in _fe_context
 
 		return ($contentOnly || !$this->initialRenderer)
 			? new JsonResponse($frontendData, $status, $responseHeader, true)
@@ -59,7 +62,8 @@ class FrontendRenderer implements FrontendRendererInterface {
 				$template,
 				[
 					'_fe_data' => $frontendData,
-					'_fe_instance' => $instance,
+					'_fe_context' => $feContext,
+					'_fe_instance' => $instance
 				] + $data,
 				$status,
 				$responseHeader,
