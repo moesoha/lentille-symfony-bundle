@@ -4,6 +4,7 @@ namespace Lentille\SymfonyBundle\Controller;
 
 use Lentille\SymfonyBundle\Attribute\Api;
 use Lentille\SymfonyBundle\Exception\ErrorExtraDataInterface;
+use Lentille\SymfonyBundle\Exception\ErrorExtraDataNormalizableInterface;
 use Lentille\SymfonyBundle\Exception\TranslatableExceptionInterface;
 use Lentille\SymfonyBundle\Frontend\FrontendRendererInterface;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
@@ -16,12 +17,14 @@ use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 use Symfony\Component\Security\Core\Exception\AuthenticationCredentialsNotFoundException;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
+use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 #[AsController]
 class ErrorController {
 	public function __construct(
 		#[Autowire(value: '%kernel.environment%')] private readonly string $environment,
+		private readonly ?NormalizerInterface $normalizer,
 		private readonly ?TranslatorInterface $translator,
 		private readonly ?AuthorizationCheckerInterface $authorizationChecker,
 		private readonly ?FrontendRendererInterface $renderer,
@@ -42,13 +45,23 @@ class ErrorController {
 			'errorCode' => 500,
 			'errorType' => $exception::class,
 			'errorMessage' => $exception->getMessage(),
-			'errorData' => $exception instanceof ErrorExtraDataInterface ? $exception->getExtraData() : []
+			'errorData' => [':' => 0]
 		];
 		if($exception instanceof HttpExceptionInterface) {
 			$data['errorCode'] = $exception->getStatusCode();
 			$responseHeaders = array_merge($responseHeaders, $exception->getHeaders());
 		} else if (!$showTrace && !($exception instanceof \InvalidArgumentException)) {
 			$data['errorMessage'] = 'Internal Error';
+		}
+		if($exception instanceof ErrorExtraDataInterface) {
+			if($this->normalizer) {
+				if($exception instanceof ErrorExtraDataNormalizableInterface) {
+					$context = $exception->getExtraDataNormalizeContext();
+				}
+				$data['errorData'] = $this->normalizer->normalize($exception->getExtraData(), 'json', $context ?? []);
+			} else {
+				$data['errorData'] = $exception->getExtraData();
+			}
 		}
 
 		if($showTrace) {
