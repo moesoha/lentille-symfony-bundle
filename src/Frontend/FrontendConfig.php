@@ -52,7 +52,7 @@ class FrontendConfig implements CacheWarmerInterface {
 		return $this->getCompiledConfig($cache->getPath());
 	}
 
-	public function warmUp(string $cacheDir): array {
+	public function warmUp(string $cacheDir, string $buildDir = null): array {
 		$oldCache = $this->cacheDir;
 		$this->cacheDir = $cacheDir;
 

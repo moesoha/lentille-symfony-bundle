@@ -5,16 +5,16 @@
 	"minimum-stability": "stable",
 	"prefer-stable": true,
 	"require": {
-		"php": ">=8.1",
+		"php": ">=8.2",
 		"doctrine/orm": "^2.13",
-		"haydenpierce/class-finder": "^0.4.4",
-		"symfony/form": "^6.1",
-		"symfony/framework-bundle": "^6.1",
-		"symfony/serializer": "^6.1",
-		"symfony/translation-contracts": "^3.0"
+		"haydenpierce/class-finder": "^0.6",
+		"symfony/form": "^6.4",
+		"symfony/framework-bundle": "^6.4",
+		"symfony/serializer": "^6.4",
+		"symfony/translation-contracts": "^3.7"
 	},
 	"require-dev": {
-		"symfony/security-core": "^6.1",
+		"symfony/security-core": "^6.4",
 		"pagerfanta/pagerfanta": "^4.7",
 		"twig/twig": "^3.4"
 	},
