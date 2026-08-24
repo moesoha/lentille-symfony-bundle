@@ -6,7 +6,7 @@ use Doctrine\Common\Util\ClassUtils;
 use Lentille\SymfonyBundle\Serializer\LeveledNormalizer\LeveledNormalizerInterface;
 use Lentille\SymfonyBundle\Serializer\LeveledNormalizer\NormalizeLevel;
 use Psr\Container\ContainerInterface;
-use Symfony\Component\DependencyInjection\Attribute\TaggedLocator;
+use Symfony\Component\DependencyInjection\Attribute\AutowireLocator;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 use Symfony\Component\Serializer\SerializerAwareInterface;
 use Symfony\Component\Serializer\SerializerAwareTrait;
@@ -18,7 +18,7 @@ class LeveledNormalizer implements NormalizerInterface, SerializerAwareInterface
 	public const CONTEXT_PARAMETER = self::class . '+Parameter';
 
 	public function __construct(
-		#[TaggedLocator('lentille.serializer.leveled_normalizer')] private readonly ContainerInterface $normalizers
+		#[AutowireLocator('lentille.serializer.leveled_normalizer')] private readonly ContainerInterface $normalizers
 	) {
 	}
 
@@ -29,7 +29,7 @@ class LeveledNormalizer implements NormalizerInterface, SerializerAwareInterface
 		return $object::class;
 	}
 
-	public function normalize(mixed $object, string $format = null, array $context = []): mixed {
+	public function normalize(mixed $object, string $format = null, array $context = []): array|string|int|float|bool|\ArrayObject|null {
 		$key = '[UnknownObject]';
 		if(is_object($object)) {
 			/** @var LeveledNormalizerInterface $normalizer */

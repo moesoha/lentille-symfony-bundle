@@ -13,7 +13,7 @@ class PinNormalizeLevelNormalizer implements NormalizerInterface, SerializerAwar
 	/**
 	 * @param PinNormalizeLevel $object
 	 */
-	public function normalize(mixed $object, string $format = null, array $context = []): mixed {
+	public function normalize(mixed $object, string $format = null, array $context = []): array|string|int|float|bool|\ArrayObject|null {
 		return $this->serializer->normalize($object->object, $format, array_merge($context, [
 			LeveledNormalizer::CONTEXT_LEVEL_MAP => array_merge(
 				$context[LeveledNormalizer::CONTEXT_LEVEL_MAP] ?? [],

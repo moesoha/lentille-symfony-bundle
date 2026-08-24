@@ -8,7 +8,7 @@ use Symfony\Component\Config\ConfigCacheFactory;
 use Symfony\Component\Config\ConfigCacheFactoryInterface;
 use Symfony\Component\Config\ConfigCacheInterface;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
-use Symfony\Component\DependencyInjection\Attribute\TaggedIterator;
+use Symfony\Component\DependencyInjection\Attribute\AutowireIterator;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpKernel\CacheWarmer\CacheWarmerInterface;
 
@@ -20,7 +20,7 @@ class FrontendConfig implements CacheWarmerInterface {
 	public function __construct(
 		#[Autowire('%kernel.debug%')] bool $isDebug,
 		#[Autowire('%kernel.cache_dir%')] private string $cacheDir,
-		#[TaggedIterator('lentille.frontend_config.entry')] private readonly iterable $entries,
+		#[AutowireIterator('lentille.frontend_config.entry')] private readonly iterable $entries,
 		#[Autowire('%kernel.default_locale%')] private readonly string $defaultLocale,
 		#[Autowire('%kernel.enabled_locales%')] private readonly array $enabledLocales,
 		private readonly array $warmupLocales = [],
