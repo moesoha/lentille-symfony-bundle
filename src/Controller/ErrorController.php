@@ -14,7 +14,10 @@ use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Attribute\AsController;
 use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
+use Symfony\Component\Security\Core\Authorization\AccessDecision;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
+use Symfony\Component\Security\Core\Authorization\Voter\VoterInterface;
+use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 use Symfony\Component\Security\Core\Exception\AuthenticationCredentialsNotFoundException;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
@@ -73,37 +76,58 @@ class ErrorController {
 			}
 		}
 
-		$authException = null;
-		if($exception instanceof AuthenticationException) {
-			$authException = $exception;
-		} else if(
-			($exception instanceof HttpExceptionInterface) &&
-			($exception->getPrevious() instanceof AuthenticationException)
-		) {
-			$authException = $exception->getPrevious();
-		}
-
-		if($authException) {
-			$data['errorCode'] = Response::HTTP_UNAUTHORIZED;
-			$data['errorMessage'] = $this->trans(
-				$authException->getMessageKey(),
-				$authException->getMessageData(),
-				'security'
-			);
-		} else if($exception instanceof TranslatableExceptionInterface) {
-			$data['errorMessage'] = $this->trans(
-				$exception->getMessageKey(),
-				$exception->getMessageData(),
-				$exception->getMessageDomain() ?: 'exceptions'
-			);
-		} else {
-			$data['errorMessage'] = $this->trans($data['errorMessage']);
+		if($exception instanceof \Exception) {
+			$this->exceptionMessageHandler($exception, $data);
 		}
 
 		return $useJson
 			? new JsonResponse($data, $data['errorCode'], $responseHeaders)
 			: $this->render($data, $data['errorCode'], $responseHeaders)
 		;
+	}
+
+	private function exceptionMessageHandler(\Exception $exception, array &$data): void {
+		$previous = $exception->getPrevious();
+		if(
+			($previous instanceof AuthenticationException) ||
+			($previous instanceof AccessDeniedException)
+		) {
+			$exception = $previous;
+		}
+
+		if($exception instanceof AuthenticationException) {
+			$data['errorCode'] = Response::HTTP_UNAUTHORIZED;
+			$data['errorMessage'] = $this->trans(
+				$exception->getMessageKey(),
+				$exception->getMessageData(),
+				'security'
+			);
+			return;
+		} else if($exception instanceof AccessDeniedException) {
+			$data['errorCode'] = Response::HTTP_FORBIDDEN;
+			if(class_exists(AccessDecision::class) && ($decision = $exception->getAccessDecision())) {
+				$messages = [];
+				foreach($decision->votes as $vote) {
+					if($vote->result !== VoterInterface::ACCESS_DENIED) continue;
+					foreach($vote->reasons as $reason) {
+						$messages[] = $this->trans($reason);
+					}
+				}
+				if($messages) {
+					$data['errorMessage'] = implode(' ', $messages);
+					return;
+				}
+			}
+		} else if($exception instanceof TranslatableExceptionInterface) {
+			$data['errorMessage'] = $this->trans(
+				$exception->getMessageKey(),
+				$exception->getMessageData(),
+				$exception->getMessageDomain() ?: 'exceptions'
+			);
+			return;
+		}
+
+		$data['errorMessage'] = $this->trans($data['errorMessage']);
 	}
 
 	private function trans(string $key, array $data = [], string $domain = 'exceptions'): string {
